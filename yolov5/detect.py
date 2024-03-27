@@ -130,9 +130,12 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
 
         # NMS
         pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
+        # 0到3列存放box,4列存放conf,5列存放class种类id。 x应该是返回6个数值的  可以打印输出看到类别 
+        print(pred)
         dt[2] += time_sync() - t3
 
         # Second-stage classifier (optional)
+        # from utils.general import apply_classifier
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
 
         # Process predictions
@@ -143,6 +146,9 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 s += f'{i}: '
             else:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+                # cv2.imshow("show", im0) # 现在还没画框
+                # cv2.waitKey()
+                # print(p)
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
@@ -151,6 +157,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
+
             if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
@@ -176,7 +183,10 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                             save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
 
             # Stream results
-            im0 = annotator.result()
+            im0 = annotator.result()  # 这个是就是结果，画了框的结果
+
+            cv2.imshow(str(p), im0)
+            cv2.waitKey()
             if view_img:
                 cv2.imshow(str(p), im0)
                 cv2.waitKey(1)  # 1 millisecond
@@ -191,9 +201,10 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                         if isinstance(vid_writer[i], cv2.VideoWriter):
                             vid_writer[i].release()  # release previous video writer
                         if vid_cap:  # video
-                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                            fps = vid_cap.get(cv2.CAP_PROP_FPS)  # 这个是获取帧率，和之前的获取帧数是不一样的，帧率才是FPS，帧率 * 视频时长 = 帧数
+                            # cv2.CAP_PROP_FRAME_COUNT 这个会获取总帧数
+                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))   # 该帧的宽
+                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # 该帧的长
                         else:  # stream
                             fps, w, h = 30, im0.shape[1], im0.shape[0]
                         save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
@@ -215,7 +226,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5x.pt', help='model path(s)')
     parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
