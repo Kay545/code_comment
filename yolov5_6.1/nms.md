@@ -136,7 +136,7 @@ def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, classes=Non
 
 **xc = prediction[..., 4] > conf_thres：详细操作**
 
-![image-20240404104107773](.\assert\image-20240404104107773.png)
+[![image-20240404104107773](.\assert\image-20240404104107773.png)](https://github.com/Kay545/code_comment/blob/main/yolov5_6.1/assert/Snipaste_2024-04-04_16-34-31.png)
 
 **x = x[xc[xi]]  例子**
 
