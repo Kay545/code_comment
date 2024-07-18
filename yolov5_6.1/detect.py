@@ -181,7 +181,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 # print("info:",lst)
 
                 # Write results
-                for *xyxy, conf, cls in reversed(det):  # reversed的作用是将检测到的结果按照置信度的大小反转
+                for *xyxy, conf, cls in reversed(det):  # reversed的作用是将检测到的结果按照置信度的大小反转 NMS出来是从大到小排序的，这里变成从小到大排序了
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
